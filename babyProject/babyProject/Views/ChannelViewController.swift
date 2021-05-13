@@ -16,7 +16,6 @@ class ChannelViewController: MessagesViewController, MessagesDataSource, Message
     private var cancellable: AnyCancellable?
 
     let currentUser = Sender(senderId: "1", displayName: "iOS-User-\(UUID().uuidString)")
-    let otherUser = Sender(senderId: "2", displayName: "Greeter")
     var _messages = [Message]()
     var messages: [Message] {
         get {
@@ -56,7 +55,6 @@ class ChannelViewController: MessagesViewController, MessagesDataSource, Message
     }
     
     func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
-        print("here is message count \(messages.count) and messages \(messages)")
         return messages.count
     }
 
