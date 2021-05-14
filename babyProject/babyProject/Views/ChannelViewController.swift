@@ -11,6 +11,25 @@ import InputBarAccessoryView
 import Combine
 import StompClientLib
 
+
+/**
+ A simple chat view that both receives and sends messages.
+
+ # Text
+ This controller sets up a socket connection and subscribes to the selected channel for listening to incoming messages, while it sends messages through a HTTP post request.
+
+ When pushing this controller, make sure to set the correct channel and title.
+
+ The example code is taken from *didSelect cell* in the initial channel selector view.
+ # Example code
+ ```
+ let channel = channels?[indexPath.item]
+ let vc = ChannelViewController()
+ vc.channel = channel
+ vc.title = channel?.name.capitalized ?? ""
+ self.navigationController?.pushViewController(vc, animated: true)
+ ```
+ */
 class ChannelViewController: MessagesViewController, MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate {
 
     private var cancellable: AnyCancellable?
@@ -28,6 +47,7 @@ class ChannelViewController: MessagesViewController, MessagesDataSource, Message
     var channel: bpChannel?
 
     var socketClient = StompClientLib()
+    // Currently hardcoded url, due to issues with API outputting two identical JSON fields `_links`
     lazy var url = NSURL(string: "https://api.turkuforge.fi/connect/websocket")!
 
     override func viewDidLoad() {
@@ -38,7 +58,7 @@ class ChannelViewController: MessagesViewController, MessagesDataSource, Message
         messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
 
-        socketClient.openSocketWithURLRequest(request: NSURLRequest(url: url as URL) , delegate: self)
+        socketClient.openSocketWithURLRequest(request: NSURLRequest(url: url as URL), delegate: self)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -74,7 +94,16 @@ class ChannelViewController: MessagesViewController, MessagesDataSource, Message
     }
 
     func received(message: RecivedMessage) {
-        let message = Message(sender: Sender(senderId: message.from == currentUser.displayName ? "1" : "2", displayName: message.from), messageId: "2", sentDate: message.date, kind: .text(message.message))
+        let sender = Sender(
+            senderId: message.from == currentUser.displayName ? "1" : "2", // Currently hardcoded as there is no senderID in the API
+            displayName: message.from
+        )
+        let message = Message(
+            sender: sender,
+            messageId: "2", // Currently hardcoded as there is no messageID in the API
+            sentDate: message.date,
+            kind: .text(message.message)
+        )
         messages.append(message)
     }
 }
