@@ -1,6 +1,0 @@
-framework module Pods_babyProject {
-  umbrella header "Pods-babyProject-umbrella.h"
-
-  export *
-  module * { export * }
-}
