@@ -21,8 +21,25 @@ struct bpRootResponse: Codable {
 struct bpEmbedded: Codable {
     let channelList: [bpChannel]
 
-    enum CodingKeys: String, CodingKey {
+    enum CodingKeysOld: String, CodingKey {
         case channelList = "bp:channelList"
+    }
+
+    enum CodingKeysNew: String, CodingKey {
+        case channelList = "bp:channel"
+    }
+
+    init(from decoder: Decoder) throws {
+        let containerOld = try decoder.container(keyedBy: CodingKeysOld.self)
+        let containerNew = try decoder.container(keyedBy: CodingKeysNew.self)
+
+        if let decodedChannelList = try containerOld.decodeIfPresent([bpChannel].self, forKey: CodingKeysOld.channelList) {
+            channelList = decodedChannelList
+        } else if let decodedChannelList = try containerNew.decodeIfPresent([bpChannel].self, forKey: CodingKeysNew.channelList) {
+            channelList = decodedChannelList
+        } else {
+            throw DecodingError()
+        }
     }
 }
 
@@ -91,3 +108,5 @@ struct RecivedMessage: Codable {
         message = dict["message"] as? String ?? ""
     }
 }
+
+struct DecodingError: Error {}
