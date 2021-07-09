@@ -8,6 +8,11 @@
 import UIKit
 import Combine
 
+struct GlobalValues {
+    static var rootUrl = "https://api.turkuforge.fi"
+    static var sockjsEndpoint: URL?
+}
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var channelCollection: UICollectionView!
@@ -25,20 +30,20 @@ class ViewController: UIViewController {
         }
     }
     var result: bpRootResponse?
-    let rootURL = "https://api.turkuforge.fi"
 
     override func viewDidLoad() {
         super.viewDidLoad()
         preventLargeTitleCollapsing()
 
-        let url = URL(string: rootURL)!
+        let url = URL(string: GlobalValues.rootUrl)!
         self.cancellable = URLSession.shared.dataTaskPublisher(for: url)
             .map { $0.data }
             .decode(type: bpRootResponse.self, decoder: JSONDecoder())
             .eraseToAnyPublisher()
-            .sink(receiveCompletion: { print ("Received completion: \($0).") },
-                  receiveValue: { response in self.channels = response.embedded.channelList
-                    print("here is self channel first ______ \(response)")
+            .sink(receiveCompletion: { _ in  },
+                  receiveValue: { response in
+                    self.channels = response.embedded.channelList
+                    GlobalValues.sockjsEndpoint = response.links.sockJsEndpoint?.href
                   })
     }
 

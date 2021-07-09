@@ -47,8 +47,15 @@ class ChannelViewController: MessagesViewController, MessagesDataSource, Message
     var channel: bpChannel?
 
     var socketClient = StompClientLib()
-    // Currently hardcoded url, due to issues with API outputting two identical JSON fields `_links`
-    lazy var url = NSURL(string: "https://api.turkuforge.fi/connect/websocket")!
+    lazy var url = { () -> NSURL in
+        if let safeSockjsEndpoint = GlobalValues.sockjsEndpoint {
+            // Currently adding "/websocket" to bypass the need to first fetch sockjsEndpoint and then connect to a new link given in the response
+            return NSURL(string: "\(safeSockjsEndpoint)/websocket")!
+        } else {
+            // Currently hardcoded url, due to issues with API outputting two identical JSON fields `_links`
+            return NSURL(string: "https://api.turkuforge.fi/connect/websocket")!
+        }
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
