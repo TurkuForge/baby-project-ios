@@ -40,11 +40,10 @@ class ViewController: UIViewController {
             .map { $0.data }
             .decode(type: bpRootResponse.self, decoder: JSONDecoder())
             .eraseToAnyPublisher()
-            .sink(receiveCompletion: { print ("Received completion: \($0).") },
+            .sink(receiveCompletion: { _ in  },
                   receiveValue: { response in
                     self.channels = response.embedded.channelList
                     GlobalValues.sockjsEndpoint = response.links.sockJsEndpoint?.href
-                    print("here is self channel first ______ \(response)")
                   })
     }
 
